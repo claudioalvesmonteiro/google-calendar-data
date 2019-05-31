@@ -7,16 +7,18 @@ export a CSV dataset with the informations
 
 # import modules
 import pandas as pd
-
-'''
-
- search for the keywords and append to var dictionary of list
-
-'''
+import datetime
 
 file = 'claudiomonteirol.a@gmail.com.ics'
 
 def listToData(file):
+    ''' opens a ics file as text,
+        split text into events,
+        split events into informations,
+        select informations and append to
+        to dictionary of lists to be transformed in
+        pandas dataframe
+    '''
 
     # read file as text
     file = open(file, 'r')
@@ -65,6 +67,54 @@ dataset = pd.DataFrame(data)
 # dataset head
 dataset.head()
 
-# remove BEFORE:
-
 # split DSTART e DTEND in date,time columns each
+def dateSelector(data, column, name):
+    ''' takes a pandasDF and a column to split 
+        the column rows into two columns
+    '''
+    # split rows of the target column into a list
+    sere = []
+    for row in column:
+        split_row = row.split(':')
+        sere.append(split_row[1])
+    # split the list values in date and time and append informations
+    year = []
+    month = []
+    day = []
+    caldate =[]
+    time = []
+    for date in sere:
+        split_time = date.split('T')
+        year.append(split_time[0][0:4]) 
+        month.append(split_time[0][4:6])
+        day.append(split_time[0][6:8])
+        caldate.append( (split_time[0][0:4] + '-' + split_time[0][4:6] + '-' +split_time[0][6:8]) )
+        if len(split_time) < 2:
+            time.append('NA')
+        else:
+            time.append((split_time[1][0:2] + ':' + split_time[1][2:4]) )
+    # add lists as data columns
+    data[('YEAR_' + name)] = year
+    data[('MONTH_' + name)] = month
+    data[('DAY_' + name)] = day
+    data[('CALDATE_' + name)] = caldate
+    data[('TIME_' + name)] = time
+    return data
+
+# execute time columns builder
+dataset = dateSelector(dataset, dataset['DTSTART'], 'START')
+dataset = dateSelector(dataset, dataset['DTEND'], 'END')
+
+# copy dataset
+data = dataset.copy()
+
+# remove NAs
+data = dataset[dataset['TIME_START'] != 'NA']
+
+# calculate time of event 
+data['TIME_STARTED'] =  (pd.to_datetime(data['TIME_START'], format='%H:%S') - pd.to_datetime('1900-01-01 3:00:00')).dt.time
+data['TIME_ENDED'] =  (pd.to_datetime(data['TIME_END'], format='%H:%S')- pd.to_datetime('1900-01-01 3:00:00')).dt.time
+
+data['TIME_ENDED']
+
+data['TIME_DURATION'] = data['TIME_ENDED'] - data['TIME_STARTED']
