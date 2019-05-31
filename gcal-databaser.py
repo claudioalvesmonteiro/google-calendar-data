@@ -64,3 +64,7 @@ dataset = pd.DataFrame(data)
 
 # dataset head
 dataset.head()
+
+# remove BEFORE:
+
+# split DSTART e DTEND in date,time columns each
