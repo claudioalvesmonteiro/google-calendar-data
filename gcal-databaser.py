@@ -11,6 +11,10 @@ import datetime
 
 file = 'claudiomonteirol.a@gmail.com.ics'
 
+#================================#
+# READ AND TRANSFORM ICS IN DICT
+#================================#
+
 def listToData(file):
     ''' opens a ics file as text,
         split text into events,
@@ -67,6 +71,10 @@ dataset = pd.DataFrame(data)
 # dataset head
 dataset.head()
 
+#==========================#
+# CLEAN DATA
+#==========================#
+
 # split DSTART e DTEND in date,time columns each
 def dateSelector(data, column, name):
     ''' takes a pandasDF and a column to split 
@@ -115,16 +123,10 @@ data = dataset[dataset['TIME_START'] != 'NA']
 t1 =  pd.to_datetime(data['TIME_START'], format='%H:%S')
 t2 =  pd.to_datetime(data['TIME_END'], format='%H:%S')
 
-t1[len(t1)-16:len(t1)]
-t2[len(t2)-16:len(t2)]
-
 # subtract the local GMT
 localGMT = pd.to_datetime('1900-01-01 03:00:00')
 ta = t1 - localGMT
 tb = t2 - localGMT 
-
-ta[len(ta)-16:len(ta)]
-tb[len(tb)-16:len(tb)]
 
 # transform string and select time
 strer = lambda x: str(x)
@@ -136,11 +138,18 @@ tx = tx.apply(slicer)
 ty = tb.apply(strer)
 ty = ty.apply(slicer)
 
-# select
+# transform in datetime
 t01 =  pd.to_datetime(tx)
 t02 =  pd.to_datetime(ty)
 
-t01[len(t01)-16:len(t01)]
-tb[len(tb)-16:len(tb)]
+# SAVE TIME DURATION
+time_duration = t02 - t01
+time_duration = time_duration.apply(strer)
+time_duration = time_duration.apply(slicer)
+data['TIME_DURATION'] = pd.to_datetime(time_duration).dt.time
 
-t02 - t01
+#===================#
+# SAVE DATA
+#===================#
+
+data.to_csv('CALENDAR_DATA.csv')
