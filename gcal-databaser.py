@@ -75,24 +75,22 @@ dataset.head()
 # CLEAN DATA
 #==========================#
 
+# split dataset with ':'
+dataset =  dataset.applymap(lambda x: x.split(':')[1])
+
 # split DSTART e DTEND in date,time columns each
 def dateSelector(data, column, name):
     ''' takes a pandasDF and a column to split 
         the column rows into two columns
     '''
-    # split rows of the target column into a list
-    sere = []
-    for row in column:
-        split_row = row.split(':')
-        sere.append(split_row[1])
     # split the list values in date and time and append informations
     year = []
     month = []
     day = []
     caldate =[]
     time = []
-    for date in sere:
-        split_time = date.split('T')
+    for row in column:
+        split_time = row.split('T')
         year.append(split_time[0][0:4]) 
         month.append(split_time[0][4:6])
         day.append(split_time[0][6:8])
@@ -146,7 +144,8 @@ t02 =  pd.to_datetime(ty)
 time_duration = t02 - t01
 time_duration = time_duration.apply(strer)
 time_duration = time_duration.apply(slicer)
-data['TIME_DURATION'] = pd.to_datetime(time_duration).dt.time
+td = time_duration.copy()
+data['TIME_DURATION'] = pd.to_datetime(td).dt.time
 
 #===================#
 # SAVE DATA

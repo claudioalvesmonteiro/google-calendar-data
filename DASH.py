@@ -67,7 +67,7 @@ html.Div(id='output-graph')
 
 #----------- BODY
 app.layout = html.Div([
-    html.H2("Solicitações na Prefeitura do Recife"),
+    html.H2("Google Calendar Data"),
     html.Div([
             dcc.Dropdown(
                 id="input",
@@ -102,7 +102,7 @@ def update_graph(input_data):
                         'title' : tipo,
                         'height': 600,
                         'yaxis': {
-                            'title': 'Atividades'
+                            'title': ''
                         }
                     }
                         #'type': 'date',
